@@ -4,21 +4,17 @@ import {
   Divider,
   Skeleton,
   Typography,
+  IconButton,
   CardContent,
 } from '@mui/material';
+import { useMemo } from 'react';
 import { MonitoringPoint } from '@prisma/client';
 import useAppDispatch from '../../hooks/useAppDispatch';
 import useAppSelector from '../../hooks/useAppSelector';
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { EditMonitoringPointModal } from './EditMonitoringPointModal';
+import PencilSquareIcon from '@heroicons/react/24/solid/PencilSquareIcon';
 import { selectMonitoringPoint } from '../../lib/redux/features/monitoringPointsSlice';
-
-const columns: GridColDef[] = [
-  { field: "name", headerName: "Monitoring Point", width: 200 },
-  { field: "machineName", headerName: "Machine Name", width: 200 },
-  { field: "machineType", headerName: "Machine Type", width: 200 },
-  { field: "sensor", headerName: "Sensor", width: 200 },
-];
 
 export const MonitoringPointTable = () => {
   const dispatch = useAppDispatch();
@@ -29,6 +25,29 @@ export const MonitoringPointTable = () => {
   } = useAppSelector(state => state.monitoringPoints);
   const { data: sensors } = useAppSelector(state => state.sensors);
   const { data: machines } = useAppSelector(state => state.machines);
+
+  const columns: GridColDef[] = useMemo(() => [
+    { field: "name", headerName: "Monitoring Point", width: 200 },
+    { field: "machineName", headerName: "Machine Name", width: 200 },
+    { field: "machineType", headerName: "Machine Type", width: 200 },
+    { field: "sensor", headerName: "Sensor", width: 200 },
+    {
+      field: "action",
+      headerName: "Action",
+      width: 100,
+      sortable: false,
+      renderCell: (params) => (
+        <IconButton
+          aria-label="edit"
+          onClick={() => {
+            dispatch(selectMonitoringPoint(params.row as MonitoringPoint));
+          }}
+        >
+          <PencilSquareIcon style={{ fill: '#000', width: '20px' }} />
+        </IconButton>
+      ),
+    },
+  ], [dispatch]);
 
   return (
     <Card
@@ -107,9 +126,6 @@ export const MonitoringPointTable = () => {
                 pagination: {
                   paginationModel: { page: 0, pageSize: 5 },
                 },
-              }}
-              onRowClick={(row) => {
-                dispatch(selectMonitoringPoint(row.row as MonitoringPoint));
               }}
               pageSizeOptions={[5, 10]}
             />

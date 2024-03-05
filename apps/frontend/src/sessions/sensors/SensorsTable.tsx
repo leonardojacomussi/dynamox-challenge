@@ -3,24 +3,43 @@ import {
   Card,
   Divider,
   Skeleton,
+  IconButton,
   Typography,
   CardContent,
 } from '@mui/material';
+import { useMemo } from 'react';
 import { Sensor } from '@prisma/client';
 import { EditSensorModal } from './EditSensorModal';
 import useAppDispatch from '../../hooks/useAppDispatch';
 import useAppSelector from '../../hooks/useAppSelector';
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { selectSensor } from '../../lib/redux/features/sensorsSlice';
-
-const columns: GridColDef[] = [
-  { field: "id", headerName: "Sensor ID", width: 200 },
-  { field: "model", headerName: "Model", width: 200 },
-];
+import PencilSquareIcon from '@heroicons/react/24/solid/PencilSquareIcon';
 
 export const SensorsTable = () => {
   const dispatch = useAppDispatch();
   const {status, data: sensors, sensorSelected} = useAppSelector(state => state.sensors);
+
+  const columns: GridColDef[] = useMemo(() => [
+    { field: "id", headerName: "Sensor ID", width: 200 },
+    { field: "model", headerName: "Model", width: 200 },
+    {
+      field: "action",
+      headerName: "Action",
+      width: 100,
+      sortable: false,
+      renderCell: (params) => (
+        <IconButton
+          aria-label="edit"
+          onClick={() => {
+            dispatch(selectSensor(params.row as Sensor));
+          }}
+        >
+          <PencilSquareIcon style={{ fill: '#000', width: '20px' }} />
+        </IconButton>
+      ),
+    },
+  ], [dispatch]);
 
   return (
     <Card
@@ -68,9 +87,6 @@ export const SensorsTable = () => {
                 pagination: {
                   paginationModel: { page: 0, pageSize: 5 },
                 },
-              }}
-              onRowClick={(row) => {
-                dispatch(selectSensor(row.row as Sensor));
               }}
               pageSizeOptions={[5, 10]}
             />
