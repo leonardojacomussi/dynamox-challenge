@@ -59,38 +59,48 @@ The layout used was DeviasKit with Material UI, access the original template [he
 
 Clone this this repo:
 
-```shel
+```shell
 git clone git@github.com:leonardojacomussi/dynamox-challenge.git
 ```
 
 Make sure it is in the `leonardo-jacomussi` branch:
 
-```shel
+```shell
 git checkout leonardo-jacomussi
 ```
 
 Install dependencies:
 
-```shel
+```shell
 npm install
 ```
 
 Create a `.env` file in the project root with the following environment variables for the database and authentication:
 
-```shel
+```shell
 POSTGRES_PRISMA_URL=postgres://...
 JWT_SECRET=6Pb2CVgaQ%R%$...
 ```
 
+Generate database schemas and synchronize:
+
+```shell
+npx prisma db push --schema=prisma/prisma/schema.prisma
+```
+
+```shell
+npx prisma generate --schema=prisma/prisma/schema.prisma
+```
+
 Run the backend in `NestJs` with:
 
-```shel
+```shell
 npx nx serve backend
 ```
 
 Run the frontend in `NextJs` with:
 
-```shel
+```shell
 npx nx dev frontend
 ```
 
@@ -98,7 +108,7 @@ Acesse o link informado em seu terminal.
 
 <h2 id="tests">🃏 Run the backend tests</h2>
 
-```shel
+```shell
 npx nx test backend
 ```
 
