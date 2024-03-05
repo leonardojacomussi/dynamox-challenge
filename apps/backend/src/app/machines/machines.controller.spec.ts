@@ -64,6 +64,7 @@ describe('MachinesController', () => {
     expect(prisma.machine.create).toHaveBeenCalledWith({
       data: {
         ...body,
+        inUse: false,
         user: {
           connect: {
             id: userId,
@@ -80,6 +81,7 @@ describe('MachinesController', () => {
       id: mockedMachines[1].id,
       name: mockedMachines[1].name,
       type: mockedMachines[1].type,
+      inUse: mockedMachines[1].inUse,
     });
   });
 
@@ -120,6 +122,7 @@ describe('MachinesController', () => {
         id: true,
         name: true,
         type: true,
+        inUse: true,
       },
     });
 
@@ -131,6 +134,7 @@ describe('MachinesController', () => {
       id: machine.id,
       name: machine.name,
       type: machine.type,
+      inUse: machine.inUse,
     })));
     expect(prisma.machine.findMany).toHaveBeenCalledTimes(1);
   });
@@ -145,7 +149,7 @@ describe('MachinesController', () => {
 
     expect(prisma.machine.findFirst).toHaveBeenCalledWith({
       where: { id: 1, userId },
-      select: { id: true, name: true, type: true },
+      select: { id: true, name: true, type: true, inUse: true },
     });
 
     const response = res._getJSONData();
@@ -156,6 +160,7 @@ describe('MachinesController', () => {
       id: mockedMachines[0].id,
       name: mockedMachines[0].name,
       type: mockedMachines[0].type,
+      inUse: mockedMachines[0].inUse,
     });
     expect(prisma.machine.findFirst).toHaveBeenCalledTimes(1);
   });
@@ -175,7 +180,7 @@ describe('MachinesController', () => {
     expect(response).toEqual('Machine not found');
     expect(prisma.machine.findFirst).toHaveBeenCalledWith({
       where: { id: 5, userId },
-      select: { id: true, name: true, type: true },
+      select: { id: true, name: true, type: true, inUse: true },
     });
     expect(prisma.machine.findFirst).toHaveBeenCalledTimes(1);
   });
@@ -206,6 +211,7 @@ describe('MachinesController', () => {
       id: mockedMachines[0].id,
       name: mockedMachines[0].name,
       type: mockedMachines[0].type,
+      inUse: mockedMachines[0].inUse,
     });
     expect(prisma.machine.update).toHaveBeenCalledTimes(1);
   });

@@ -2,10 +2,13 @@ import { HttpStatus } from '@nestjs/common';
 import { JwtStrategy } from '../guard/jwt.strategy';
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from '../database/PrismaService';
+import { SensorsService } from '../sensors/sensors.service';
+import { MachinesService } from '../machines/machines.service';
 import { MonitoringPointsService } from './monitoring-points.service';
 import { mockedMonitoringPoints, mockedMonitoringPointsPrisma } from '../../mocks/index.mock';
 
 describe('MonitoringPointsService', () => {
+  const userId = 1;
   let service: MonitoringPointsService;
   let prisma: PrismaService;
 
@@ -13,6 +16,8 @@ describe('MonitoringPointsService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         JwtStrategy,
+        SensorsService,
+        MachinesService,
         MonitoringPointsService,
         { provide: PrismaService, useValue: mockedMonitoringPointsPrisma },
       ],
@@ -38,7 +43,7 @@ describe('MonitoringPointsService', () => {
       machineId: mockedMonitoringPoints[0].machineId,
       sensorId: mockedMonitoringPoints[0].sensorId,
     };
-    expect(await service.create(monitoringPoint)).toEqual({
+    expect(await service.create(monitoringPoint, userId)).toEqual({
       statusCode: HttpStatus.CREATED,
       data: mockedMonitoringPoints[0],
     });
@@ -54,9 +59,9 @@ describe('MonitoringPointsService', () => {
       machineId: 2,
       sensorId: 4,
     };
-    expect(await service.create(monitoringPoint)).toEqual({
+    expect(await service.create(monitoringPoint, userId)).toEqual({
       statusCode: HttpStatus.CONFLICT,
-      data: 'Sensor already assigned to a monitoring point',
+      data: 'Monitoring Point already exists',
     });
     expect(prisma.monitoringPoint.create).toHaveBeenCalledTimes(0);
   });
@@ -86,7 +91,7 @@ describe('MonitoringPointsService', () => {
       machineId: 1,
       sensorId: 1,
     };
-    expect(await service.update(1, monitoringPoint)).toEqual({
+    expect(await service.update(1, monitoringPoint, userId)).toEqual({
       statusCode: HttpStatus.OK,
       data: mockedMonitoringPoints[0],
     });
@@ -103,9 +108,9 @@ describe('MonitoringPointsService', () => {
       machineId: 2,
       sensorId: 4,
     };
-    expect(await service.update(1, monitoringPoint)).toEqual({
+    expect(await service.update(1, monitoringPoint, userId)).toEqual({
       statusCode: HttpStatus.CONFLICT,
-      data: 'Sensor already assigned to a monitoring point',
+      data: 'Monitoring Point already exists',
     });
     expect(prisma.monitoringPoint.update).toHaveBeenCalledTimes(0);
   });

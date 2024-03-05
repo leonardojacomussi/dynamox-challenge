@@ -105,6 +105,7 @@ export const mockedMonitoringPointsPrisma = {
       }
       return mockedSensors[1];
     }),
+    update: jest.fn().mockResolvedValue(mockedSensors[1]),
   },
   machine: {
     findUnique: jest.fn().mockImplementation(args => {
@@ -113,5 +114,6 @@ export const mockedMonitoringPointsPrisma = {
       }
       return mockedMachines[1];
     }),
+    update: jest.fn().mockResolvedValue(mockedMachines[1]),
   }
 };

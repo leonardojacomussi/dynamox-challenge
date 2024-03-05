@@ -26,8 +26,8 @@ describe('SessionsController', () => {
 
   it('should return a token', async () => {
     const body: CreateSessionDto = {
-      email: 'leonardo@email.com',
-	    password: 'Hard@*rock3!',
+      email: 'dynamox@leonardojacomussi.com',
+	    password: 'W3lc@me!',
     };
 
     const res = httpMock.createResponse({ eventEmitter: EventEmitter });
@@ -61,7 +61,7 @@ describe('SessionsController', () => {
 
   it('should return a 401 status code', async () => {
     const body: CreateSessionDto = {
-      email: 'leonardo@email.com',
+      email: 'dynamox@leonardojacomussi.com',
       password: 'invalid-password',
     };
 

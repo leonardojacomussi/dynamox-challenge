@@ -1,6 +1,8 @@
 import { Injectable, HttpStatus } from '@nestjs/common';
 import { PrismaError } from '@dynamox-challenge/prisma';
 import { PrismaService } from '../database/PrismaService';
+import { SensorsService } from '../sensors/sensors.service';
+import { MachinesService } from '../machines/machines.service';
 import {
   CreateMonitoringPointDto,
   createMonitoringPointDto,
@@ -10,8 +12,12 @@ import {
 
 @Injectable()
 export class MonitoringPointsService {
-  constructor(private prisma: PrismaService) {}
-  async create(body: CreateMonitoringPointDto): Promise<{
+  constructor(
+    private prisma: PrismaService,
+    private sensorsService: SensorsService,
+    private machinesService: MachinesService,
+  ) {}
+  async create(body: CreateMonitoringPointDto, userId: number): Promise<{
     statusCode: number;
     data: string | { id: number; name: string; machineId: number; sensorId: number };
   }> {
@@ -40,6 +46,11 @@ export class MonitoringPointsService {
           statusCode: HttpStatus.NOT_FOUND,
           data: 'Sensor not found',
         };
+      } else if (checkIfSensorExists.inUse) {
+        return {
+          statusCode: HttpStatus.CONFLICT,
+          data: 'Sensor already in use',
+        };
       }
 
       const checkIfMachineExists = await this.prisma.machine.findUnique({
@@ -53,18 +64,10 @@ export class MonitoringPointsService {
           statusCode: HttpStatus.NOT_FOUND,
           data: 'Machine not found',
         };
-      }
-
-      const checkIfSensorHaveBeenAssignedToMonitoringPoint = await this.prisma.monitoringPoint.findFirst({
-        where: {
-          sensorId: data.sensorId,
-        },
-      });
-
-      if (checkIfSensorHaveBeenAssignedToMonitoringPoint) {
+      } else if (checkIfMachineExists.inUse) {
         return {
           statusCode: HttpStatus.CONFLICT,
-          data: 'Sensor already assigned to a monitoring point',
+          data: 'Machine already in use',
         };
       }
 
@@ -87,6 +90,9 @@ export class MonitoringPointsService {
           ...data,
         },
       });
+
+      await this.sensorsService.update(data.sensorId, { inUse: true });
+      await this.machinesService.update(data.machineId, { inUse: true }, userId);
 
       return {
         statusCode: HttpStatus.CREATED,
@@ -137,7 +143,7 @@ export class MonitoringPointsService {
     }
   }
 
-  async update(id: number, body: UpdateMonitoringPointDto): Promise<{
+  async update(id: number, body: UpdateMonitoringPointDto, userId: number): Promise<{
     statusCode: number;
     data: string | { id: number; name: string; machineId: number; sensorId: number };
   }> {
@@ -155,6 +161,19 @@ export class MonitoringPointsService {
     const data = validation.data;
 
     try {
+      const checkIfOldMonitoringPointExists = await this.prisma.monitoringPoint.findUnique({
+        where: {
+          id,
+        },
+      });
+
+      if (!checkIfOldMonitoringPointExists) {
+        return {
+          statusCode: HttpStatus.NOT_FOUND,
+          data: 'Monitoring Point not found',
+        };
+      }
+
       const checkIfSensorExists = await this.prisma.sensor.findUnique({
         where: {
           id: data.sensorId,
@@ -165,6 +184,11 @@ export class MonitoringPointsService {
         return {
           statusCode: HttpStatus.NOT_FOUND,
           data: 'Sensor not found',
+        };
+      } else if (checkIfSensorExists.inUse) {
+        return {
+          statusCode: HttpStatus.CONFLICT,
+          data: 'Sensor already in use',
         };
       }
 
@@ -179,33 +203,35 @@ export class MonitoringPointsService {
           statusCode: HttpStatus.NOT_FOUND,
           data: 'Machine not found',
         };
-      }
-
-      const checkIfSensorHaveBeenAssignedToMonitoringPoint = await this.prisma.monitoringPoint.findFirst({
-        where: {
-          sensorId: data.sensorId,
-        },
-      });
-
-      if (checkIfSensorHaveBeenAssignedToMonitoringPoint) {
+      } else if (checkIfMachineExists.inUse) {
         return {
           statusCode: HttpStatus.CONFLICT,
-          data: 'Sensor already assigned to a monitoring point',
+          data: 'Machine already in use',
         };
       }
 
-      const checkIfMonitoringPointExists = await this.prisma.monitoringPoint.findFirst({
+      const checkIfNewMonitoringPointExists = await this.prisma.monitoringPoint.findFirst({
         where: {
           machineId: data.machineId,
           sensorId: data.sensorId,
         },
       });
 
-      if (checkIfMonitoringPointExists) {
+      if (checkIfNewMonitoringPointExists) {
         return {
           statusCode: HttpStatus.CONFLICT,
           data: 'Monitoring Point already exists',
         };
+      }
+
+      if (data.sensorId) {
+        await this.sensorsService.update(checkIfOldMonitoringPointExists.sensorId, { inUse: false });
+        await this.sensorsService.update(data.sensorId, { inUse: true });
+      }
+
+      if (data.machineId) {
+        await this.machinesService.update(checkIfOldMonitoringPointExists.machineId, { inUse: false }, userId);
+        await this.machinesService.update(data.machineId, { inUse: true }, userId);
       }
 
       const monitoringPoint = await this.prisma.monitoringPoint.update({

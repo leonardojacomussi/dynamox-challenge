@@ -21,8 +21,8 @@ describe('SessionsService', () => {
 
   it('should create a session', async () => {
     const body: CreateSessionDto = {
-      email: 'leonardo@email.com',
-	    password: 'Hard@*rock3!',
+      email: 'dynamox@leonardojacomussi.com',
+	    password: 'W3lc@me!',
     };
 
     const response = await service.create(body);
@@ -70,7 +70,7 @@ describe('SessionsService', () => {
 
   it('should not create a session with invalid credentials', async () => {
     const body: CreateSessionDto = {
-      email: 'leonardo@email.com',
+      email: 'dynamox@leonardojacomussi.com',
       password: 'invalid-password',
     };
 

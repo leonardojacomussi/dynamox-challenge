@@ -1,6 +1,7 @@
 import {
   Get,
   Res,
+  Req,
   Post,
   Body,
   Patch,
@@ -15,6 +16,12 @@ import { AuthenticatedGuard } from '../guard/authenticated.guard';
 import { MonitoringPointsService } from './monitoring-points.service';
 import { CreateMonitoringPointDto, UpdateMonitoringPointDto } from '@dynamox-challenge/dto';
 
+interface AuthRequest extends Request {
+  user: {
+    userId: number;
+  }
+}
+
 @Controller('monitoring-points')
 @UseGuards(AuthGuard('jwt'), AuthenticatedGuard)
 export class MonitoringPointsController {
@@ -25,9 +32,11 @@ export class MonitoringPointsController {
   @Post()
   async create(
     @Body() body: CreateMonitoringPointDto,
-    @Res() res: Response
+    @Res() res: Response,
+    @Req() req: AuthRequest
   ) {
-    const { statusCode, data } = await this.monitoringPointsService.create(body);
+    const userId = req.user.userId;
+    const { statusCode, data } = await this.monitoringPointsService.create(body, userId);
     return res.status(statusCode).json(data);
   }
 
@@ -52,9 +61,11 @@ export class MonitoringPointsController {
   async update(
     @Param('id') id: string,
     @Body() body: UpdateMonitoringPointDto,
-    @Res() res: Response
+    @Res() res: Response,
+    @Req() req: AuthRequest
   ) {
-    const { statusCode, data } = await this.monitoringPointsService.update(+id, body);
+    const userId = req.user.userId;
+    const { statusCode, data } = await this.monitoringPointsService.update(+id, body, userId);
     return res.status(statusCode).json(data);
   }
 

@@ -37,12 +37,13 @@ describe('MachinesService', () => {
     const machine = await service.create({ name: 'Machine 1', type: 'Pump' }, userId);
     expect(machine).toEqual({
       statusCode: HttpStatus.CREATED,
-      data: { id: 2, name: 'Machine 2', type: 'Pump' },
+      data: { id: 2, name: 'Machine 2', type: 'Pump', inUse: false },
     });
     expect(prisma.machine.create).toHaveBeenCalledWith({
       data: {
         name: 'Machine 1',
         type: 'Pump',
+        inUse: false,
         user: {
           connect: {
             id: userId
@@ -69,12 +70,13 @@ describe('MachinesService', () => {
       data: {
         id: mockedMachines[0].id,
         name: mockedMachines[0].name,
-        type: mockedMachines[0].type
+        type: mockedMachines[0].type,
+        inUse: mockedMachines[0].inUse
       },
     });
     expect(prisma.machine.findFirst).toHaveBeenCalledWith({
       where: { id: 1, userId },
-      select: { id: true, name: true, type: true }
+      select: { id: true, name: true, type: true, inUse: true}
     });
     expect(prisma.machine.findFirst).toHaveBeenCalledTimes(1);
   });
@@ -87,7 +89,7 @@ describe('MachinesService', () => {
     });
     expect(prisma.machine.findFirst).toHaveBeenCalledWith({
       where: { id: 5, userId },
-      select: { id: true, name: true, type: true }
+      select: { id: true, name: true, type: true, inUse: true }
     });
     expect(prisma.machine.findFirst).toHaveBeenCalledTimes(1);
   });
@@ -99,12 +101,13 @@ describe('MachinesService', () => {
       data: mockedMachines.map(machine => ({
         id: machine.id,
         name: machine.name,
-        type: machine.type
+        type: machine.type,
+        inUse: machine.inUse,
       })),
     });
     expect(prisma.machine.findMany).toHaveBeenCalledWith({
       where: { userId },
-      select: { id: true, name: true, type: true }
+      select: { id: true, name: true, type: true, inUse: true }
     });
     expect(prisma.machine.findMany).toHaveBeenCalledTimes(1);
   });
@@ -116,7 +119,8 @@ describe('MachinesService', () => {
       data: {
         id: mockedMachines[0].id,
         name: mockedMachines[0].name,
-        type: mockedMachines[0].type
+        type: mockedMachines[0].type,
+        inUse: mockedMachines[0].inUse,
       },
     });
     expect(prisma.machine.update).toHaveBeenCalledWith({

@@ -4,6 +4,7 @@ import {
   UpdateSensorDto,
   updateSensorDto
 } from '@dynamox-challenge/dto';
+import { Sensor } from '@prisma/client';
 import { PrismaError } from '@dynamox-challenge/prisma';
 import { Injectable, HttpStatus } from '@nestjs/common';
 import { PrismaService } from '../database/PrismaService';
@@ -35,7 +36,7 @@ export class SensorsService {
 
     try {
       const sensor = await this.prisma.sensor.create({
-        data
+        data: { ...data, inUse: false }
       });
 
       return {
@@ -49,10 +50,10 @@ export class SensorsService {
 
   async findAll(): Promise<{
     statusCode: number;
-    data: string | Array<{ model: string; id: number }>;
+    data: string | Array<Sensor>;
   }> {
     try {
-      const sensors = await this.prisma.sensor.findMany();
+      const sensors: Array<Sensor> = await this.prisma.sensor.findMany();
       return {
         statusCode: HttpStatus.OK,
         data: sensors
@@ -64,10 +65,10 @@ export class SensorsService {
 
   async findOne(id: number): Promise<{
     statusCode: number;
-    data: string | { model: string; id: number };
+    data: string | Sensor;
   }> {
     try {
-      const sensor = await this.prisma.sensor.findUnique({
+      const sensor: Sensor | null = await this.prisma.sensor.findUnique({
         where: { id }
       });
 
@@ -89,7 +90,7 @@ export class SensorsService {
 
   async update(id: number, body: UpdateSensorDto): Promise<{
     statusCode: number;
-    data: string | { model: string; id: number };
+    data: string | Sensor;
   }> {
     const validation = updateSensorDto.safeParse(body);
 
@@ -98,6 +99,11 @@ export class SensorsService {
         return {
           statusCode: 400,
           data: 'Invalid model, expected: "TcAg", "TcAs" or "HF+", we got: ' + body.model
+        };
+      } else if (validation.error.flatten().fieldErrors.inUse) {
+        return {
+          statusCode: 400,
+          data: 'Invalid inUse, expected boolean value: true or false, we got: ' + body.inUse
         };
       } else {
         return {
@@ -129,6 +135,25 @@ export class SensorsService {
     data: string;
   }> {
     try {
+
+      const sensor: Sensor | null = await this.prisma.sensor.findUnique({
+        where: { id }
+      });
+
+      if (!sensor) {
+        return {
+          statusCode: HttpStatus.NOT_FOUND,
+          data: 'Sensor not found'
+        };
+      }
+
+      if (sensor.inUse) {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          data: 'Sensor in use'
+        };
+      }
+
       await this.prisma.sensor.delete({
         where: { id }
       });

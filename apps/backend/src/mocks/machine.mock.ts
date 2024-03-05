@@ -4,18 +4,21 @@ export const mockedMachines = [
     name: 'Machine 1',
     type: 'Pump',
     userId: 1,
+    inUse: false,
   },
   {
     id: 2,
     name: 'Machine 2',
     type: 'Pump',
     userId: 1,
+    inUse: false,
   },
   {
     id: 3,
     name: 'Machine 3',
     type: 'Fan',
     userId: 1,
+    inUse: false,
   },
 ];
 

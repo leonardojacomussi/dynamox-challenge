@@ -2,14 +2,17 @@ export const mockedSensors = [
   {
     id: 1,
     model: 'TcAg',
+    inUse: false,
   },
   {
     id: 2,
     model: 'TcAs',
+    inUse: false,
   },
   {
     id: 3,
     model: 'HF+',
+    inUse: false,
   },
 ];
 

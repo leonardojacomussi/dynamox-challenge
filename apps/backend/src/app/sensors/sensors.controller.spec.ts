@@ -46,7 +46,7 @@ describe('SensorsController', () => {
     };
     const res = httpMock.createResponse({ eventEmitter: EventEmitter });
     await controller.create(body, res);
-    expect(prisma.sensor.create).toHaveBeenCalledWith({ data: body });
+    expect(prisma.sensor.create).toHaveBeenCalledWith({ data: { ...body, inUse: false } });
 
     const statusCode = res._getStatusCode();
     const response = res._getJSONData();

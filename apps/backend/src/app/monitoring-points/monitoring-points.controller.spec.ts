@@ -2,13 +2,25 @@ import EventEmitter from 'events';
 import httpMock from 'node-mocks-http';
 import { HttpStatus } from '@nestjs/common';
 import { JwtStrategy } from '../guard/jwt.strategy';
-import { PrismaService } from '../database/PrismaService';
 import { Test, TestingModule } from '@nestjs/testing';
+import { PrismaService } from '../database/PrismaService';
+import { SensorsService } from '../sensors/sensors.service';
+import { MachinesService } from '../machines/machines.service';
 import { MonitoringPointsService } from './monitoring-points.service';
 import { MonitoringPointsController } from './monitoring-points.controller';
 import { mockedMonitoringPoints, mockedMonitoringPointsPrisma } from '../../mocks/index.mock';
 
+interface AuthRequest extends Request {
+  user: {
+    userId: number;
+  }
+}
+
 describe('MonitoringPointsController', () => {
+  const userId = 1;
+  const req = httpMock.createRequest({
+    user: { userId },
+  }) as unknown as AuthRequest;
   let controller: MonitoringPointsController;
   let service: MonitoringPointsService;
   let prisma: PrismaService;
@@ -18,6 +30,8 @@ describe('MonitoringPointsController', () => {
       controllers: [MonitoringPointsController],
       providers: [
         JwtStrategy,
+        SensorsService,
+        MachinesService,
         MonitoringPointsService,
         { provide: PrismaService, useValue: mockedMonitoringPointsPrisma },
       ],
@@ -46,7 +60,7 @@ describe('MonitoringPointsController', () => {
       sensorId: mockedMonitoringPoints[0].sensorId,
     };
     const res = httpMock.createResponse({ eventEmitter: EventEmitter });
-    await controller.create(body, res);
+    await controller.create(body, res, req);
     expect(prisma.monitoringPoint.create).toHaveBeenCalledWith({ data: body });
 
     const statusCode = res._getStatusCode();
@@ -63,13 +77,13 @@ describe('MonitoringPointsController', () => {
       sensorId: 4,
     };
     const res = httpMock.createResponse({ eventEmitter: EventEmitter });
-    await controller.create(body, res);
+    await controller.create(body, res, req);
     expect(prisma.monitoringPoint.create).not.toHaveBeenCalled();
 
     const statusCode = res._getStatusCode();
     const response = res._getJSONData();
 
-    expect(response).toEqual('Sensor already assigned to a monitoring point');
+    expect(response).toEqual('Monitoring Point already exists');
     expect(statusCode).toBe(HttpStatus.CONFLICT);
   });
 
@@ -104,7 +118,7 @@ describe('MonitoringPointsController', () => {
       sensorId: 1,
     };
     const res = httpMock.createResponse({ eventEmitter: EventEmitter });
-    await controller.update('1', body, res);
+    await controller.update('1', body, res, req);
     expect(prisma.monitoringPoint.update).toHaveBeenCalledWith({ where: { id: 1 }, data: body });
 
     const statusCode = res._getStatusCode();
@@ -121,13 +135,13 @@ describe('MonitoringPointsController', () => {
       sensorId: 4,
     };
     const res = httpMock.createResponse({ eventEmitter: EventEmitter });
-    await controller.update('1', body, res);
+    await controller.update('1', body, res, req);
     expect(prisma.monitoringPoint.update).not.toHaveBeenCalled();
 
     const statusCode = res._getStatusCode();
     const response = res._getJSONData();
 
-    expect(response).toEqual('Sensor already assigned to a monitoring point');
+    expect(response).toEqual('Monitoring Point already exists');
     expect(statusCode).toBe(HttpStatus.CONFLICT);
   });
 

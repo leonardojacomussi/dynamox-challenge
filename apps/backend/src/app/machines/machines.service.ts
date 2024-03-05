@@ -14,7 +14,7 @@ export class MachinesService {
 
   async create(body: CreateMachineDto, userId: number): Promise<{
     statusCode: number;
-    data: string | { id: number; name: string; type: string }
+    data: string | { id: number; name: string; type: string, inUse: boolean}
   }> {
     const validation = createMachineDto.safeParse(body);
     if (!validation.success) {
@@ -30,6 +30,7 @@ export class MachinesService {
       const machine = await this.prisma.machine.create({
         data: {
           ...data,
+          inUse: false,
           user: {
             connect: {
               id: userId
@@ -43,7 +44,8 @@ export class MachinesService {
         data: {
           id: machine.id,
           name: machine.name,
-          type: machine.type
+          type: machine.type,
+          inUse: machine.inUse
         }
       }
     } catch (error) {
@@ -53,7 +55,7 @@ export class MachinesService {
 
   async findAll(userId: number): Promise<{
     statusCode: number;
-    data: string | Array<{ id: number; name: string; type: string; }>
+    data: string | Array<{ id: number; name: string; type: string; inUse: boolean }>
   }> {
     try {
       const machines = await this.prisma.machine.findMany({
@@ -63,7 +65,8 @@ export class MachinesService {
         select: {
           id: true,
           name: true,
-          type: true
+          type: true,
+          inUse: true
         }
       });
 
@@ -72,7 +75,8 @@ export class MachinesService {
         data: machines.map(machine => ({
           id: machine.id,
           name: machine.name,
-          type: machine.type
+          type: machine.type,
+          inUse: machine.inUse
         }))
       }
     } catch (error) {
@@ -82,7 +86,7 @@ export class MachinesService {
 
   async findOne(id: number, userId: number): Promise<{
     statusCode: number;
-    data: string | { id: number; name: string; type: string }
+    data: string | { id: number; name: string; type: string, inUse: boolean }
   }> {
     try {
       const machine = await this.prisma.machine.findFirst({
@@ -93,7 +97,8 @@ export class MachinesService {
         select: {
           id: true,
           name: true,
-          type: true
+          type: true,
+          inUse: true
         }
       });
 
@@ -109,7 +114,8 @@ export class MachinesService {
         data: {
           id: machine.id,
           name: machine.name,
-          type: machine.type
+          type: machine.type,
+          inUse: machine.inUse
         }
       }
     } catch (error) {
@@ -119,7 +125,7 @@ export class MachinesService {
 
   async update(id: number, body: UpdateMachineDto, userId: number): Promise<{
     statusCode: number;
-    data: string | { id: number; name: string; type: string }
+    data: string | { id: number; name: string; type: string, inUse: boolean }
   }> {
     const validation = updateMachineDto.safeParse(body);
     if (!validation.success) {
@@ -147,7 +153,8 @@ export class MachinesService {
         data: {
           id: machine.id,
           name: machine.name,
-          type: machine.type
+          type: machine.type,
+          inUse: machine.inUse
         }
       }
     } catch (error) {
@@ -160,6 +167,27 @@ export class MachinesService {
     data: string
   }> {
     try {
+      const machine = await this.prisma.machine.findUnique({
+        where: {
+          id,
+          userId
+        }
+      });
+
+      if (!machine) {
+        return {
+          statusCode: HttpStatus.NOT_FOUND,
+          data: 'Machine not found'
+        };
+      }
+
+      if (machine.inUse) {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          data: 'Machine is in use, cannot be removed'
+        };
+      }
+
       await this.prisma.machine.delete({
         where: {
           id,
