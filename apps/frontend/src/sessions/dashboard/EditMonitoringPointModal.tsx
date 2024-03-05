@@ -21,7 +21,7 @@ import { useFormik } from 'formik';
 import { MonitoringPoint } from '@prisma/client';
 import useAppDispatch from '../../hooks/useAppDispatch';
 import useAppSelector from '../../hooks/useAppSelector';
-import { updateMonitoringPoint, getMachines, getSensors, getMonitoringPoints } from '../../lib/api';
+import { updateMonitoringPoint, getMachines, getSensors, getMonitoringPoints, deleteMonitoringPoint } from '../../lib/api';
 import { UpdateMonitoringPointDto, updateMonitoringPointDto } from '@dynamox-challenge/dto';
 import { selectMonitoringPoint, removeMonitoringPoint } from '../../lib/redux/features/monitoringPointsSlice';
 
@@ -265,11 +265,15 @@ export const EditMonitoringPointModal = () => {
               </Box>
             </CardContent>
             <Divider />
-            <CardActions sx={{ justifyContent: 'flex-end' }}>
+            <CardActions sx={{ justifyContent: 'space-between' }}>
               <Button
                 variant="outlined"
                 disabled={mPStatus === 'loading'}
                 onClick={() => {
+                  dispatch(deleteMonitoringPoint({
+                    monitoringPointsId: (monitoringPointSelected as MonitoringPoint).id,
+                    accessToken: accessToken as string
+                  }))
                   dispatch(removeMonitoringPoint((selectMonitoringPoint as unknown as MonitoringPoint).id))
                   dispatch(selectMonitoringPoint(null))
                 }}
@@ -277,7 +281,7 @@ export const EditMonitoringPointModal = () => {
                 Remove Monitoring Point {' '} { mPStatus === 'loading' && <CircularProgress size={13} />}
               </Button>
               <Button variant="contained" type='submit' disabled={mPStatus === 'loading'}>
-                Add Monitoring Point {' '} { mPStatus === 'loading' && <CircularProgress size={13} />}
+                Edit Monitoring Point {' '} { mPStatus === 'loading' && <CircularProgress size={13} />}
               </Button>
             </CardActions>
           </Card>

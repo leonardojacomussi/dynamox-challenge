@@ -122,15 +122,7 @@ export const AddMonitoringPointForm = () => {
     } else if (machineStatus === 'error') {
       return <MenuItem value={0} disabled selected>Error loading machines</MenuItem>;
     } else if (machineStatus === 'ready') {
-      if (monitoringPoints.length > 0 && machines.length > 0) {
-        return machines.filter((machine) => {
-          return !monitoringPoints.some((mP) => mP.machineId === machine.id);
-        }).map((machine) => (
-          <MenuItem key={machine.id} value={machine.id}>
-            {machine.type} - {machine.name}
-          </MenuItem>
-        ));
-      } else if (machines.length > 0) {
+      if (machines.length > 0) {
         return machines.map((machine) => (
           <MenuItem key={machine.id} value={machine.id}>
             {machine.type} - {machine.name}
@@ -140,7 +132,7 @@ export const AddMonitoringPointForm = () => {
         return <MenuItem value={0} disabled selected>No machines available</MenuItem>;
       }
     }
-  }, [machineStatus, machines, monitoringPoints]);
+  }, [machineStatus, machines]);
 
   const updateData = useCallback(() => {
     if (accessToken === null) return;
