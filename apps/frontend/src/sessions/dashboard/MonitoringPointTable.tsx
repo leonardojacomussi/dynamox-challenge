@@ -11,7 +11,7 @@ import { useMemo } from 'react';
 import { MonitoringPoint } from '@prisma/client';
 import useAppDispatch from '../../hooks/useAppDispatch';
 import useAppSelector from '../../hooks/useAppSelector';
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { EditMonitoringPointModal } from './EditMonitoringPointModal';
 import PencilSquareIcon from '@heroicons/react/24/solid/PencilSquareIcon';
 import { selectMonitoringPoint } from '../../lib/redux/features/monitoringPointsSlice';
@@ -27,18 +27,18 @@ export const MonitoringPointTable = () => {
   const { data: machines } = useAppSelector(state => state.machines);
 
   const columns: GridColDef[] = useMemo(() => [
-    { field: "name", headerName: "Monitoring Point", width: 200 },
-    { field: "machineName", headerName: "Machine Name", width: 200 },
-    { field: "machineType", headerName: "Machine Type", width: 200 },
-    { field: "sensor", headerName: "Sensor", width: 200 },
+    { field: 'name', headerName: 'Monitoring Point', width: 200 },
+    { field: 'machineName', headerName: 'Machine Name', width: 200 },
+    { field: 'machineType', headerName: 'Machine Type', width: 200 },
+    { field: 'sensor', headerName: 'Sensor', width: 200 },
     {
-      field: "action",
-      headerName: "Action",
+      field: 'action',
+      headerName: 'Action',
       width: 100,
       sortable: false,
       renderCell: (params) => (
         <IconButton
-          aria-label="edit"
+          aria-label='edit'
           onClick={() => {
             dispatch(selectMonitoringPoint(params.row as MonitoringPoint));
           }}
@@ -67,7 +67,7 @@ export const MonitoringPointTable = () => {
         >
           <Typography
             gutterBottom
-            variant="h5"
+            variant='h5'
           >
             Your monitoring points
           </Typography>
@@ -75,15 +75,15 @@ export const MonitoringPointTable = () => {
       </CardContent>
       <Divider />
       {
-        status === "loading" ? (
+        status === 'loading' ? (
           <Box>
-            <Skeleton height={50} width={"100%"} />
-            <Skeleton height={50} width={"100%"} />
-            <Skeleton height={50} width={"100%"} />
-            <Skeleton height={50} width={"100%"} />
-            <Skeleton height={50} width={"100%"} />
-            <Skeleton height={50} width={"100%"} />
-            <Skeleton height={50} width={"100%"} />
+            <Skeleton height={50} width={'100%'} />
+            <Skeleton height={50} width={'100%'} />
+            <Skeleton height={50} width={'100%'} />
+            <Skeleton height={50} width={'100%'} />
+            <Skeleton height={50} width={'100%'} />
+            <Skeleton height={50} width={'100%'} />
+            <Skeleton height={50} width={'100%'} />
           </Box>
         ) : (
           <Box>
@@ -92,7 +92,7 @@ export const MonitoringPointTable = () => {
               rows={monitoringPoint}
               columns={
                 columns.map((column) => {
-                  if (column.field === "sensor") {
+                  if (column.field === 'sensor') {
                     return {
                       ...column,
                       valueGetter: (params) => {
@@ -100,7 +100,7 @@ export const MonitoringPointTable = () => {
                         return sensor?.model;
                       }
                     };
-                  } else if (column.field === "machineType") {
+                  } else if (column.field === 'machineType') {
                     return {
                       ...column,
                       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -109,7 +109,7 @@ export const MonitoringPointTable = () => {
                         return machine?.type;
                       }
                     };
-                  } else if (column.field === "machineName") {
+                  } else if (column.field === 'machineName') {
                     return {
                       ...column,
                       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -127,17 +127,21 @@ export const MonitoringPointTable = () => {
                   paginationModel: { page: 0, pageSize: 5 },
                 },
               }}
+              localeText={{
+                noRowsLabel: 'No monitoring points found',
+                noResultsOverlayLabel: 'No monitoring points found'
+              }}
               pageSizeOptions={[5, 10]}
             />
           </Box>
         )
       }
       {
-        status === "error" ? (
+        status === 'error' ? (
           <Box>
             <Typography
-              color="textSecondary"
-              variant="body2"
+              color='textSecondary'
+              variant='body2'
             >
               Something went wrong. Please try again later.
             </Typography>

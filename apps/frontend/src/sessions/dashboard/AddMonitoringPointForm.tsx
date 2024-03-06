@@ -88,9 +88,7 @@ export const AddMonitoringPointForm = () => {
               return true;
             }
           })
-          .filter((sensor) => {
-            return !monitoringPoints.some((mP) => mP.sensorId === sensor.id);
-          })
+          .filter((sensor) => !sensor.inUse)
           .map((sensor) => (
             <MenuItem key={sensor.id} value={sensor.id}>
               {sensor.id} - {sensor.model}
@@ -112,6 +110,8 @@ export const AddMonitoringPointForm = () => {
               {sensor.id} - {sensor.model}
             </MenuItem>
           ));
+      } else {
+        return <MenuItem value={0} disabled selected>No sensors available</MenuItem>;
       }
     }
   }, [sensorStatus, sensors, monitoringPoints, machines, formik.values.machineId]);
@@ -147,14 +147,14 @@ export const AddMonitoringPointForm = () => {
 
   return (
     <form
-      autoComplete="off"
+      autoComplete='off'
       noValidate
       onSubmit={formik.handleSubmit}
     >
       <Card>
         <CardHeader
-          subheader="The information can be edited"
-          title="Add a new monitoring point"
+          subheader='The information can be edited'
+          title='Add a new monitoring point'
         />
         <CardContent sx={{ pt: 0 }}>
           <Box sx={{ m: -1.5 }}>
@@ -170,13 +170,13 @@ export const AddMonitoringPointForm = () => {
                   error={!!(formik.touched.name && formik.errors.name)}
                   fullWidth
                   helperText={formik.touched.name && formik.errors.name}
-                  label="Name"
-                  name="name"
+                  label='Name'
+                  name='name'
                   onBlur={formik.handleBlur}
                   onChange={formik.handleChange}
                   required
                   value={formik.values.name}
-                  variant="filled"
+                  variant='filled'
                 />
               </Grid>
               <Grid
@@ -184,11 +184,11 @@ export const AddMonitoringPointForm = () => {
                 // md={6}
               >
                 <FormControl fullWidth>
-                  <InputLabel variant='filled' htmlFor="machineId">Machine</InputLabel>
+                  <InputLabel variant='filled' htmlFor='machineId'>Machine</InputLabel>
                   <Select
                     error={!!(formik.touched.machineId && formik.errors.machineId)}
                     fullWidth
-                    label="Machine"
+                    label='Machine'
                     inputProps={{
                       name: 'machineId',
                       id: 'machineId',
@@ -207,11 +207,11 @@ export const AddMonitoringPointForm = () => {
                 // md={6}
               >
                 <FormControl fullWidth>
-                  <InputLabel variant='filled' htmlFor="sensorId">Sensor</InputLabel>
+                  <InputLabel variant='filled' htmlFor='sensorId'>Sensor</InputLabel>
                   <Select
                     error={!!(formik.touched.sensorId && formik.errors.sensorId)}
                     fullWidth
-                    label="Sensor"
+                    label='Sensor'
                     inputProps={{
                       name: 'sensorId',
                       id: 'sensorId',
@@ -229,8 +229,8 @@ export const AddMonitoringPointForm = () => {
           </Box>
         </CardContent>
         <Divider />
-        <CardActions sx={{ justifyContent: 'flex-end' }}>
-          <Button variant="contained" type='submit' disabled={mPStatus === 'loading'}>
+        <CardActions sx={{ justifyContent: 'space-between' }}>
+          <Button variant='contained' type='submit' disabled={mPStatus === 'loading'}>
             Add Monitoring Point {' '} { mPStatus === 'loading' && <CircularProgress size={13} />}
           </Button>
         </CardActions>

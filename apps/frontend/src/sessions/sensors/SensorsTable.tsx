@@ -12,7 +12,7 @@ import { Sensor } from '@prisma/client';
 import { EditSensorModal } from './EditSensorModal';
 import useAppDispatch from '../../hooks/useAppDispatch';
 import useAppSelector from '../../hooks/useAppSelector';
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { selectSensor } from '../../lib/redux/features/sensorsSlice';
 import PencilSquareIcon from '@heroicons/react/24/solid/PencilSquareIcon';
 
@@ -21,16 +21,29 @@ export const SensorsTable = () => {
   const {status, data: sensors, sensorSelected} = useAppSelector(state => state.sensors);
 
   const columns: GridColDef[] = useMemo(() => [
-    { field: "id", headerName: "Sensor ID", width: 200 },
-    { field: "model", headerName: "Model", width: 200 },
+    { field: 'id', headerName: 'Sensor ID', width: 200 },
+    { field: 'model', headerName: 'Model', width: 200 },
     {
-      field: "action",
-      headerName: "Action",
+      field: 'inUse',
+      headerName: 'Availability',
+      width: 200,
+      renderCell: (params) => (
+        <Typography
+          color={params.value ? 'textSecondary' : 'textPrimary'}
+          variant='body2'
+        >
+          {params.value ? 'In use' : 'Available'}
+        </Typography>
+      ),
+    },
+    {
+      field: 'action',
+      headerName: 'Action',
       width: 100,
       sortable: false,
       renderCell: (params) => (
         <IconButton
-          aria-label="edit"
+          aria-label='edit'
           onClick={() => {
             dispatch(selectSensor(params.row as Sensor));
           }}
@@ -59,7 +72,7 @@ export const SensorsTable = () => {
         >
           <Typography
             gutterBottom
-            variant="h5"
+            variant='h5'
           >
             Your Sensors
           </Typography>
@@ -67,15 +80,15 @@ export const SensorsTable = () => {
       </CardContent>
       <Divider />
       {
-        status === "loading" ? (
+        status === 'loading' ? (
           <Box>
-            <Skeleton height={50} width={"100%"} />
-            <Skeleton height={50} width={"100%"} />
-            <Skeleton height={50} width={"100%"} />
-            <Skeleton height={50} width={"100%"} />
-            <Skeleton height={50} width={"100%"} />
-            <Skeleton height={50} width={"100%"} />
-            <Skeleton height={50} width={"100%"} />
+            <Skeleton height={50} width={'100%'} />
+            <Skeleton height={50} width={'100%'} />
+            <Skeleton height={50} width={'100%'} />
+            <Skeleton height={50} width={'100%'} />
+            <Skeleton height={50} width={'100%'} />
+            <Skeleton height={50} width={'100%'} />
+            <Skeleton height={50} width={'100%'} />
           </Box>
         ) : (
           <Box>
@@ -88,17 +101,21 @@ export const SensorsTable = () => {
                   paginationModel: { page: 0, pageSize: 5 },
                 },
               }}
+              localeText={{
+                noRowsLabel: 'No sensors found',
+                noResultsOverlayLabel: 'No sensors found'
+              }}
               pageSizeOptions={[5, 10]}
             />
           </Box>
         )
       }
       {
-        status === "error" ? (
+        status === 'error' ? (
           <Box>
             <Typography
-              color="textSecondary"
-              variant="body2"
+              color='textSecondary'
+              variant='body2'
             >
               Something went wrong. Please try again later.
             </Typography>

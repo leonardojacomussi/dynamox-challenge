@@ -72,14 +72,14 @@ export const AddMachineForm = () => {
 
   return (
     <form
-      autoComplete="off"
+      autoComplete='off'
       noValidate
       onSubmit={formik.handleSubmit}
     >
       <Card>
         <CardHeader
-          subheader="The information can be edited"
-          title="Add a new machine"
+          subheader='The information can be edited'
+          title='Add a new machine'
         />
         <CardContent sx={{ pt: 0 }}>
           <Box sx={{ m: -1.5 }}>
@@ -95,13 +95,13 @@ export const AddMachineForm = () => {
                   error={!!(formik.touched.name && formik.errors.name)}
                   fullWidth
                   helperText={formik.touched.name && formik.errors.name}
-                  label="Name"
-                  name="name"
+                  label='Name'
+                  name='name'
                   onBlur={formik.handleBlur}
                   onChange={formik.handleChange}
                   required
                   value={formik.values.name}
-                  variant="filled"
+                  variant='filled'
                 />
               </Grid>
               <Grid
@@ -109,11 +109,11 @@ export const AddMachineForm = () => {
                 // md={6}
               >
                 <FormControl fullWidth>
-                  <InputLabel variant='filled' htmlFor="type">Type</InputLabel>
+                  <InputLabel variant='filled' htmlFor='type'>Type</InputLabel>
                   <Select
                     error={!!(formik.touched.type && formik.errors.type)}
                     fullWidth
-                    label="Type"
+                    label='Type'
                     inputProps={{
                       name: 'type',
                       id: 'type',
@@ -123,8 +123,8 @@ export const AddMachineForm = () => {
                     value={formik.values.type}
                     required
                   >
-                    <MenuItem value="Pump" selected>Pump</MenuItem>
-                    <MenuItem value="Fan">Fan</MenuItem>
+                    <MenuItem value='Pump' selected>Pump</MenuItem>
+                    <MenuItem value='Fan'>Fan</MenuItem>
                   </Select>
                 </FormControl>
               </Grid>
@@ -133,7 +133,7 @@ export const AddMachineForm = () => {
         </CardContent>
         <Divider />
         <CardActions sx={{ justifyContent: 'flex-end' }}>
-          <Button variant="contained" type='submit' disabled={machineStatus === 'loading'}>
+          <Button variant='contained' type='submit' disabled={machineStatus === 'loading'}>
             Add Machine {' '} { machineStatus === 'loading' && <CircularProgress size={13} />}
           </Button>
         </CardActions>

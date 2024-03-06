@@ -77,14 +77,14 @@ export const AddSensorForm = () => {
 
   return (
     <form
-      autoComplete="off"
+      autoComplete='off'
       noValidate
       onSubmit={formik.handleSubmit}
     >
       <Card>
         <CardHeader
-          subheader="The information can be edited"
-          title="Add a new sensor"
+          subheader='The information can be edited'
+          title='Add a new sensor'
         />
         <CardContent sx={{ pt: 0 }}>
           <Box sx={{ m: -1.5 }}>
@@ -97,12 +97,12 @@ export const AddSensorForm = () => {
                 // md={6}
               >
                 <FormControl fullWidth>
-                  <InputLabel variant='filled' htmlFor="model">Model</InputLabel>
+                  <InputLabel variant='filled' htmlFor='model'>Model</InputLabel>
                   <Select
                     error={!!(formik.touched.model && formik.errors.model)}
                     fullWidth
-                    label="Model"
-                    // name="model"
+                    label='Model'
+                    // name='model'
                     inputProps={{
                       name: 'model',
                       id: 'model',
@@ -112,9 +112,9 @@ export const AddSensorForm = () => {
                     value={formik.values.model}
                     required
                   >
-                    <MenuItem value="TcAg" selected>TcAg</MenuItem>
-                    <MenuItem value="TcAs">TcAs</MenuItem>
-                    <MenuItem value="HF+">HF+</MenuItem>
+                    <MenuItem value='TcAg' selected>TcAg</MenuItem>
+                    <MenuItem value='TcAs'>TcAs</MenuItem>
+                    <MenuItem value='HF+'>HF+</MenuItem>
                   </Select>
                 </FormControl>
               </Grid>
@@ -126,8 +126,8 @@ export const AddSensorForm = () => {
                  <Card>
                   {sensorsImg[formik.values.model as 'TcAg' | 'TcAs' | 'HF+']
                     && <CardMedia
-                    component="img"
-                    height="auto"
+                    component='img'
+                    height='auto'
                     width={100}
                     image={sensorsImg[formik.values.model as 'TcAg' | 'TcAs' | 'HF+']}
                     alt={formik.values.model as 'TcAg' | 'TcAs' | 'HF+'}
@@ -139,7 +139,7 @@ export const AddSensorForm = () => {
         </CardContent>
         <Divider />
         <CardActions sx={{ justifyContent: 'flex-end' }}>
-          <Button variant="contained" type='submit' disabled={sensorStatus === 'loading'}>
+          <Button variant='contained' type='submit' disabled={sensorStatus === 'loading'}>
             Add Sensor {' '} { sensorStatus === 'loading' && <CircularProgress size={13} />}
           </Button>
         </CardActions>

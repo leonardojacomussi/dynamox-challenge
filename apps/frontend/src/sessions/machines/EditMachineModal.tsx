@@ -1,6 +1,7 @@
 import {
   Box,
   Card,
+  Alert,
   Select,
   Button,
   Divider,
@@ -21,7 +22,7 @@ import { useFormik } from 'formik';
 import { Machine } from '@prisma/client';
 import useAppDispatch from '../../hooks/useAppDispatch';
 import useAppSelector from '../../hooks/useAppSelector';
-import { updateMachine, getMachines } from '../../lib/api';
+import { updateMachine, getMachines, deleteMachine } from '../../lib/api';
 import { UpdateMachineDto, updateMachineDto } from '@dynamox-challenge/dto';
 import { selectMachine, removeMachine } from '../../lib/redux/features/machinesSlice';
 
@@ -85,8 +86,8 @@ export const EditMachineModal = () => {
     <Modal
         open={openEditModal}
         onClose={() => dispatch(selectMachine(null))}
-        aria-labelledby="parent-modal-title"
-        aria-describedby="parent-modal-description"
+        aria-labelledby='parent-modal-title'
+        aria-describedby='parent-modal-description'
         sx={{
           display: 'flex',
           alignItems: 'center',
@@ -96,14 +97,14 @@ export const EditMachineModal = () => {
         }}
       >
         <form
-          autoComplete="off"
+          autoComplete='off'
           noValidate
           onSubmit={formik.handleSubmit}
         >
           <Card>
             <CardHeader
-              subheader="The information can be edited"
-              title="Edit machine"
+              subheader='The information can be edited'
+              title='Edit machine'
             />
             <CardContent sx={{ pt: 0 }}>
               <Box sx={{ m: -1.5 }}>
@@ -119,13 +120,13 @@ export const EditMachineModal = () => {
                       error={!!(formik.touched.name && formik.errors.name)}
                       fullWidth
                       helperText={formik.touched.name && formik.errors.name}
-                      label="Name"
-                      name="name"
+                      label='Name'
+                      name='name'
                       onBlur={formik.handleBlur}
                       onChange={formik.handleChange}
                       required
                       value={formik.values.name}
-                      variant="filled"
+                      variant='filled'
                     />
                   </Grid>
                   <Grid
@@ -133,11 +134,11 @@ export const EditMachineModal = () => {
                     // md={6}
                   >
                     <FormControl fullWidth>
-                      <InputLabel variant='filled' htmlFor="type">Type</InputLabel>
+                      <InputLabel variant='filled' htmlFor='type'>Type</InputLabel>
                       <Select
                         error={!!(formik.touched.type && formik.errors.type)}
                         fullWidth
-                        label="Type"
+                        label='Type'
                         inputProps={{
                           name: 'type',
                           id: 'type',
@@ -147,8 +148,8 @@ export const EditMachineModal = () => {
                         value={formik.values.type}
                         required
                       >
-                        <MenuItem value="Pump" selected>Pump</MenuItem>
-                        <MenuItem value="Fan">Fan</MenuItem>
+                        <MenuItem value='Pump' selected>Pump</MenuItem>
+                        <MenuItem value='Fan'>Fan</MenuItem>
                       </Select>
                     </FormControl>
                   </Grid>
@@ -156,18 +157,34 @@ export const EditMachineModal = () => {
               </Box>
             </CardContent>
             <Divider />
-            <CardActions sx={{ justifyContent: 'flex-end' }}>
+            {
+              machineSelected?.inUse && (
+                <Alert
+                  severity='warning'
+                  sx={{ m: 2 }}
+                >
+                  <div>
+                    This machine is in use, you cannot delete it
+                  </div>
+                </Alert>
+              )
+            }
+            <CardActions sx={{ justifyContent: 'space-between' }}>
               <Button
-                variant="outlined"
-                disabled={machineStatus === 'loading'}
+                variant='outlined'
+                disabled={machineStatus === 'loading' || machineSelected?.inUse}
                 onClick={() => {
+                  dispatch(deleteMachine({
+                    machineId: (machineSelected as Machine).id,
+                    accessToken: accessToken as string
+                  }));
                   dispatch(removeMachine((machineSelected as Machine).id));
                   dispatch(selectMachine(null));
                 }}
               >
                 Delete Machine {' '} { machineStatus === 'loading' && <CircularProgress size={13} />}
               </Button>
-              <Button variant="contained" type='submit' disabled={machineStatus === 'loading'}>
+              <Button variant='contained' type='submit' disabled={machineStatus === 'loading'}>
                 Update Machine {' '} { machineStatus === 'loading' && <CircularProgress size={13} />}
               </Button>
             </CardActions>

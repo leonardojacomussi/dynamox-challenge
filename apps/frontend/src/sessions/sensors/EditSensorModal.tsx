@@ -2,6 +2,7 @@ import {
   Box,
   Card,
   Modal,
+  Alert,
   Select,
   Button,
   Divider,
@@ -21,7 +22,7 @@ import { useFormik } from 'formik';
 import { Sensor } from '@prisma/client';
 import useAppDispatch from '../../hooks/useAppDispatch';
 import useAppSelector from '../../hooks/useAppSelector';
-import { updateSensor, getSensors } from '../../lib/api';
+import { updateSensor, getSensors, deleteSensor } from '../../lib/api';
 import { UpdateSensorDto, updateSensorDto } from '@dynamox-challenge/dto';
 import { selectSensor, removeSensor } from '../../lib/redux/features/sensorsSlice';
 
@@ -94,8 +95,8 @@ export const EditSensorModal = () => {
     <Modal
         open={openEditModal}
         onClose={() => dispatch(selectSensor(null))}
-        aria-labelledby="parent-modal-title"
-        aria-describedby="parent-modal-description"
+        aria-labelledby='parent-modal-title'
+        aria-describedby='parent-modal-description'
         sx={{
           display: 'flex',
           alignItems: 'center',
@@ -105,14 +106,14 @@ export const EditSensorModal = () => {
         }}
       >
         <form
-          autoComplete="off"
+          autoComplete='off'
           noValidate
           onSubmit={formik.handleSubmit}
         >
           <Card>
             <CardHeader
-              subheader="The information can be edited"
-              title="Edit the sensor"
+              subheader='The information can be edited'
+              title='Edit the sensor'
             />
             <CardContent sx={{ pt: 0 }}>
               <Box sx={{ m: -1.5 }}>
@@ -125,12 +126,12 @@ export const EditSensorModal = () => {
                     // md={6}
                   >
                     <FormControl fullWidth>
-                      <InputLabel variant='filled' htmlFor="model">Model</InputLabel>
+                      <InputLabel variant='filled' htmlFor='model'>Model</InputLabel>
                       <Select
                         error={!!(formik.touched.model && formik.errors.model)}
                         fullWidth
-                        label="Model"
-                        // name="model"
+                        label='Model'
+                        // name='model'
                         inputProps={{
                           name: 'model',
                           id: 'model',
@@ -140,9 +141,9 @@ export const EditSensorModal = () => {
                         value={formik.values.model}
                         required
                       >
-                        <MenuItem value="TcAg" selected>TcAg</MenuItem>
-                        <MenuItem value="TcAs">TcAs</MenuItem>
-                        <MenuItem value="HF+">HF+</MenuItem>
+                        <MenuItem value='TcAg' selected>TcAg</MenuItem>
+                        <MenuItem value='TcAs'>TcAs</MenuItem>
+                        <MenuItem value='HF+'>HF+</MenuItem>
                       </Select>
                     </FormControl>
                   </Grid>
@@ -154,7 +155,7 @@ export const EditSensorModal = () => {
                     <Card>
                       {sensorsImg[formik.values.model as 'TcAg' | 'TcAs' | 'HF+']
                         && <CardMedia
-                        component="img"
+                        component='img'
                         sx={{ objectFit: 'cover', width: '150px', height: 'auto', margin: 'auto' }}
                         image={sensorsImg[formik.values.model as 'TcAg' | 'TcAs' | 'HF+']}
                         alt={formik.values.model as 'TcAg' | 'TcAs' | 'HF+'}
@@ -165,18 +166,34 @@ export const EditSensorModal = () => {
               </Box>
             </CardContent>
             <Divider />
-            <CardActions sx={{ justifyContent: 'flex-end' }}>
+            {
+              sensorSelected?.inUse && (
+                <Alert
+                  severity='warning'
+                  sx={{ m: 2 }}
+                >
+                  <div>
+                    This sensor is in use, you cannot delete it
+                  </div>
+                </Alert>
+              )
+            }
+            <CardActions sx={{ justifyContent: 'space-between' }}>
               <Button
-                variant="outlined"
-                disabled={sensorStatus === 'loading'}
+                variant='outlined'
+                disabled={sensorStatus === 'loading' || sensorSelected?.inUse}
                 onClick={() => {
+                  dispatch(deleteSensor({
+                    sensorId: (sensorSelected as Sensor).id,
+                    accessToken: accessToken as string
+                  }));
                   dispatch(removeSensor((sensorSelected as Sensor).id));
                   dispatch(selectSensor(null));
                 }}
               >
                 Remove Sensor {' '} { sensorStatus === 'loading' && <CircularProgress size={13} />}
               </Button>
-              <Button variant="contained" type='submit' disabled={sensorStatus === 'loading'}>
+              <Button variant='contained' type='submit' disabled={sensorStatus === 'loading'}>
                 Update Sensor {' '} { sensorStatus === 'loading' && <CircularProgress size={13} />}
               </Button>
             </CardActions>
